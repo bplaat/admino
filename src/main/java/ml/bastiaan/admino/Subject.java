@@ -4,12 +4,11 @@ package ml.bastiaan.admino;
 
 public class Subject {
     private String code;
-    private float grade;
     private int year;
+    private float grade;
 
-    public Subject(String code, float grade, int year) {
+    public Subject(String code, int year) {
         this.code = code;
-        this.grade = grade;
         this.year = year;
     }
 
@@ -17,11 +16,32 @@ public class Subject {
         return code;
     }
 
+    public int getYear() {
+        return year;
+    }
+
+    public void setGrade(float grade) {
+        this.grade = grade;
+    }
+
     public float getGrade() {
         return grade;
     }
 
-    public int getYear() {
-        return year;
+    public boolean equals(Object object) {
+        if (object == this) {
+            return true;
+        }
+
+        if (!(object instanceof Subject)) {
+            return false;
+        }
+
+        Subject subject = (Subject)object;
+        return code.equals(subject.getCode()) && year == subject.getYear();
+    }
+
+    public String toString() {
+        return "Code = " + code + ", Year = " + year;
     }
 }

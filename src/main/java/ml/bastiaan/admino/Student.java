@@ -15,7 +15,7 @@ public class Student {
             this.name = name;
         }
 
-        public String toString(){
+        public String toString() {
             return name;
         }
     };
@@ -48,7 +48,7 @@ public class Student {
         return number;
     }
 
-    public String getFirstname() {
+    public String getFirstName() {
         return firstName;
     }
 
@@ -72,14 +72,34 @@ public class Student {
         return passedSubjects;
     }
 
+    public void addPassedSubject(Subject subject) {
+        passedSubjects.add(subject);
+    }
+
     public List<Subject> getFailedSubjects() {
         return failedSubjects;
     }
 
-    public static void print(Student student) {
+    public void addFailedSubject(Subject subject) {
+        failedSubjects.add(subject);
+    }
+
+    public void print() {
         Log.info("Student:");
-        Log.info("  First name = " + student.getFirstname());
-        Log.info("  Last name = " + student.getFirstname());
-        Log.info("  Sex = " + student.getSex().toString());
+        Log.info("  First name = " + firstName);
+        Log.info("  Last name = " + lastName);
+        Log.info("  Sex = " + sex);
+
+        Log.info("");
+        Log.info("  Passed subjects:");
+        for (Subject subject : passedSubjects) {
+            Log.info("    " + subject);
+        }
+
+        Log.info("");
+        Log.info("  Failed subjects:");
+        for (Subject subject : failedSubjects) {
+            Log.info("    " + subject);
+        }
     }
 }

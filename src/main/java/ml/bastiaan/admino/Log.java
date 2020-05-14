@@ -11,7 +11,7 @@ public class Log {
         if (Config.DEBUG) {
             System.out.print("[DEBUG] " + text);
 
-            if (text.charAt(text.length() - 1) != '\n') {
+            if (text == "" || text.charAt(text.length() - 1) != '\n') {
                 System.out.print('\n');
             }
         }
@@ -29,7 +29,7 @@ public class Log {
     public static void info(String text) {
         System.out.print("[INFO] " + text);
 
-        if (text.charAt(text.length() - 1) != '\n') {
+        if (text == "" || text.charAt(text.length() - 1) != '\n') {
             System.out.print('\n');
         }
     }
@@ -44,7 +44,7 @@ public class Log {
     public static void warning(String text) {
         System.out.print("[WARNING] " + text);
 
-        if (text.charAt(text.length() - 1) != '\n') {
+        if (text == "" || text.charAt(text.length() - 1) != '\n') {
             System.out.print('\n');
         }
     }
@@ -59,7 +59,7 @@ public class Log {
     public static void error(String text) {
         System.out.print("[ERROR] " + text);
 
-        if (text.charAt(text.length() - 1) != '\n') {
+        if (text == "" || text.charAt(text.length() - 1) != '\n') {
             System.out.print('\n');
         }
 
