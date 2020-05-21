@@ -17,8 +17,20 @@ public class Student {
     private final List<Subject> passedSubjects;
     private final List<Subject> failedSubjects;
 
+    public Student(int id, String firstName, String lastName, Sex sex, String studyName, String className) {
+        idCounter = id + 1;
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.sex = sex;
+        this.studyName = studyName;
+        this.className = className;
+        passedSubjects = new ArrayList<Subject>();
+        failedSubjects = new ArrayList<Subject>();
+    }
+
     public Student(String firstName, String lastName, Sex sex, String studyName, String className) {
-        id = idCounter++;
+        this.id = idCounter++;
         this.firstName = firstName;
         this.lastName = lastName;
         this.sex = sex;

@@ -9,8 +9,15 @@ public class Subject {
     private String code;
     private int year;
 
+    public Subject(int id, String code, int year) {
+        idCounter = id + 1;
+        this.id = id;
+        this.code = code;
+        this.year = year;
+    }
+
     public Subject(String code, int year) {
-        id = idCounter++;
+        this.id = idCounter++;
         this.code = code;
         this.year = year;
     }
