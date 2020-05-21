@@ -6,66 +6,70 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Student {
-    public enum Sex {
-        MALE("Male"), FEMALE("Female"), OTHER("Other");
+    private static int idCounter = 1;
 
-        private String name;
-
-        private Sex(String name) {
-            this.name = name;
-        }
-
-        public String toString() {
-            return name;
-        }
-    };
-
-    private static int numberCounter = 1;
-
-    private int number;
+    private final int id;
     private String firstName;
     private String lastName;
     private Sex sex;
-
     private String studyName;
     private String className;
-    private List<Subject> passedSubjects;
-    private List<Subject> failedSubjects;
+    private final List<Subject> passedSubjects;
+    private final List<Subject> failedSubjects;
 
     public Student(String firstName, String lastName, Sex sex, String studyName, String className) {
-        number = numberCounter++;
+        id = idCounter++;
         this.firstName = firstName;
         this.lastName = lastName;
         this.sex = sex;
-
         this.studyName = studyName;
         this.className = className;
         passedSubjects = new ArrayList<Subject>();
         failedSubjects = new ArrayList<Subject>();
     }
 
-    public int getNumber() {
-        return number;
+    public int getId() {
+        return id;
     }
 
     public String getFirstName() {
         return firstName;
     }
 
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
     public String getLastName() {
         return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public Sex getSex() {
         return sex;
     }
 
+    public void setSex(Sex sex) {
+        this.sex = sex;
+    }
+
     public String getStudyName() {
         return studyName;
     }
 
+    public void setStudyName(String studyName) {
+        this.studyName = studyName;
+    }
+
     public String getClassName() {
         return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
     }
 
     public List<Subject> getPassedSubjects() {
@@ -82,24 +86,5 @@ public class Student {
 
     public void addFailedSubject(Subject subject) {
         failedSubjects.add(subject);
-    }
-
-    public void print() {
-        Log.info("Student:");
-        Log.info("  First name = " + firstName);
-        Log.info("  Last name = " + lastName);
-        Log.info("  Sex = " + sex);
-
-        Log.info("");
-        Log.info("  Passed subjects:");
-        for (Subject subject : passedSubjects) {
-            Log.info("    " + subject);
-        }
-
-        Log.info("");
-        Log.info("  Failed subjects:");
-        for (Subject subject : failedSubjects) {
-            Log.info("    " + subject);
-        }
     }
 }

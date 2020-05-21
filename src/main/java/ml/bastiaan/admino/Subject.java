@@ -3,45 +3,35 @@
 package ml.bastiaan.admino;
 
 public class Subject {
+    private static int idCounter = 1;
+
+    private final int id;
     private String code;
     private int year;
-    private float grade;
 
     public Subject(String code, int year) {
+        id = idCounter++;
         this.code = code;
         this.year = year;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getCode() {
         return code;
     }
 
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     public int getYear() {
         return year;
     }
 
-    public void setGrade(float grade) {
-        this.grade = grade;
-    }
-
-    public float getGrade() {
-        return grade;
-    }
-
-    public boolean equals(Object object) {
-        if (object == this) {
-            return true;
-        }
-
-        if (!(object instanceof Subject)) {
-            return false;
-        }
-
-        Subject subject = (Subject)object;
-        return code.equals(subject.getCode()) && year == subject.getYear();
-    }
-
-    public String toString() {
-        return "Code = " + code + ", Year = " + year;
+    public void setYear(int year) {
+        this.year = year;
     }
 }
