@@ -6,11 +6,11 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 public class SubjectTableModel extends AbstractTableModel {
-	private static final long serialVersionUID = 1;
+    private static final long serialVersionUID = 1;
 
-	private final List<Subject> subjectList;
+    private final List<Subject> subjectList;
     private final String[] columnNames = new String[] { "Id", "Code", "Year" };
-    private final Class[] columnClass = new Class[] { Object.class, String.class, Integer.class };
+    private final Class<?>[] columnClass = new Class<?>[] { Object.class, String.class, Integer.class };
 
     public SubjectTableModel(List<Subject> subjectList) {
         this.subjectList = subjectList;

@@ -2,12 +2,21 @@
 
 package ml.bastiaan.admino;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Subject {
     private static int idCounter = 1;
 
     private final int id;
     private String code;
     private int year;
+
+    public Subject(String code, int year) {
+        this.id = idCounter++;
+        this.code = code;
+        this.year = year;
+    }
 
     public Subject(int id, String code, int year) {
         idCounter = id + 1;
@@ -16,10 +25,20 @@ public class Subject {
         this.year = year;
     }
 
-    public Subject(String code, int year) {
-        this.id = idCounter++;
-        this.code = code;
-        this.year = year;
+    public static Subject fromJSON(JSONObject jsonSubject) throws JSONException {
+        return new Subject(
+            jsonSubject.getInt("id"),
+            jsonSubject.getString("code"),
+            jsonSubject.getInt("year")
+        );
+    }
+
+    public JSONObject toJSON() {
+        JSONObject jsonSubject = new JSONObject();
+        jsonSubject.put("id", id);
+        jsonSubject.put("code", code);
+        jsonSubject.put("year", year);
+        return jsonSubject;
     }
 
     public int getId() {
@@ -40,5 +59,9 @@ public class Subject {
 
     public void setYear(int year) {
         this.year = year;
+    }
+
+    public String toString() {
+        return code;
     }
 }

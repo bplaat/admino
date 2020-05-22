@@ -2,8 +2,12 @@
 
 package ml.bastiaan.admino;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Student {
     private static int idCounter = 1;
@@ -14,8 +18,17 @@ public class Student {
     private Sex sex;
     private String studyName;
     private String className;
-    private final List<Subject> passedSubjects;
-    private final List<Subject> failedSubjects;
+    private final Map<Subject, Float> grades;
+
+    public Student(String firstName, String lastName, Sex sex, String studyName, String className) {
+        this.id = idCounter++;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.sex = sex;
+        this.studyName = studyName;
+        this.className = className;
+        grades = new HashMap<Subject, Float>();
+    }
 
     public Student(int id, String firstName, String lastName, Sex sex, String studyName, String className) {
         idCounter = id + 1;
@@ -25,19 +38,63 @@ public class Student {
         this.sex = sex;
         this.studyName = studyName;
         this.className = className;
-        passedSubjects = new ArrayList<Subject>();
-        failedSubjects = new ArrayList<Subject>();
+        grades = new HashMap<Subject, Float>();
     }
 
-    public Student(String firstName, String lastName, Sex sex, String studyName, String className) {
-        this.id = idCounter++;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.sex = sex;
-        this.studyName = studyName;
-        this.className = className;
-        passedSubjects = new ArrayList<Subject>();
-        failedSubjects = new ArrayList<Subject>();
+    public static Student fromJSON(JSONObject jsonStudent, List<Subject> subjects) throws JSONException {
+        Student student = new Student(
+            jsonStudent.getInt("id"),
+            jsonStudent.getString("first-name"),
+            jsonStudent.getString("last-name"),
+            Sex.valueOf(jsonStudent.getString("sex")),
+            jsonStudent.getString("study-name"),
+            jsonStudent.getString("class-name")
+        );
+
+        JSONArray jsonGrades = jsonStudent.getJSONArray("grades");
+        for (int i = 0; i < jsonGrades.length(); i++) {
+            JSONObject jsonGrade = jsonGrades.getJSONObject(i);
+
+            Subject gradeSubject = null;
+            int gradeSubjectId = jsonGrade.getInt("subject-id");
+            for (Subject subject : subjects) {
+                if (subject.getId() == gradeSubjectId) {
+                    gradeSubject = subject;
+                    break;
+                }
+            }
+
+            if (gradeSubject != null) {
+                student.addGrade(gradeSubject, jsonGrade.getFloat("grade"));
+            }
+
+            else {
+                Log.warning("Grade subject id: " + gradeSubjectId + " not found!");
+            }
+        }
+
+        return student;
+    }
+
+    public JSONObject toJSON() {
+        JSONObject jsonStudent = new JSONObject();
+        jsonStudent.put("id", id);
+        jsonStudent.put("first-name", firstName);
+        jsonStudent.put("last-name", lastName);
+        jsonStudent.put("sex", sex);
+        jsonStudent.put("study-name", studyName);
+        jsonStudent.put("class-name", className);
+
+        JSONArray jsonGrades = new JSONArray();
+        for (Subject subject : grades.keySet()) {
+            JSONObject jsonGrade = new JSONObject();
+            jsonGrade.put("subject-id", subject.getId());
+            jsonGrade.put("grade", grades.get(subject));
+            jsonGrades.put(jsonGrade);
+        }
+        jsonStudent.put("grades", jsonGrades);
+
+        return jsonStudent;
     }
 
     public int getId() {
@@ -84,19 +141,15 @@ public class Student {
         this.className = className;
     }
 
-    public List<Subject> getPassedSubjects() {
-        return passedSubjects;
+    public Map<Subject, Float> getGrades() {
+        return grades;
     }
 
-    public void addPassedSubject(Subject subject) {
-        passedSubjects.add(subject);
+    public void addGrade(Subject subject, float grade) {
+        grades.put(subject, grade);
     }
 
-    public List<Subject> getFailedSubjects() {
-        return failedSubjects;
-    }
-
-    public void addFailedSubject(Subject subject) {
-        failedSubjects.add(subject);
+    public void removeGrade(Subject subject) {
+        grades.remove(subject);
     }
 }

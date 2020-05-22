@@ -3,7 +3,7 @@
 package ml.bastiaan.admino;
 
 public enum Sex {
-    MALE("Male"), FEMALE("Female"), OTHER("Other");
+    MALE("Male"), FEMALE("Female"), OTHER("Other"), UNKOWN("?");
 
     private String name;
 

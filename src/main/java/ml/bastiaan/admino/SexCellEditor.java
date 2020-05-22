@@ -3,14 +3,13 @@
 package ml.bastiaan.admino;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.Component;
 import javax.swing.table.TableCellEditor;
 import javax.swing.AbstractCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
 
-public class SexCellEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
+public class SexCellEditor extends AbstractCellEditor implements TableCellEditor {
     private static final long serialVersionUID = 1;
 
     private Sex sex;
@@ -24,25 +23,24 @@ public class SexCellEditor extends AbstractCellEditor implements TableCellEditor
             this.sex = (Sex)value;
         }
 
-        JComboBox<Sex> sexCombo = new JComboBox<Sex>();
+        JComboBox<Sex> sexComboBox = new JComboBox<Sex>();
         for (Sex sex : Sex.values()) {
-            sexCombo.addItem(sex);
+            if (sex != Sex.UNKOWN) {
+                sexComboBox.addItem(sex);
+            }
         }
 
-        sexCombo.setSelectedItem(sex);
-        sexCombo.addActionListener(this);
+        sexComboBox.setSelectedItem(sex);
+        sexComboBox.addActionListener((ActionEvent event) -> {
+            this.sex = (Sex)sexComboBox.getSelectedItem();
+        });
 
         if (isSelected) {
-            sexCombo.setBackground(table.getSelectionBackground());
+            sexComboBox.setBackground(table.getSelectionBackground());
         } else {
-            sexCombo.setBackground(table.getSelectionForeground());
+            sexComboBox.setBackground(table.getSelectionForeground());
         }
 
-        return sexCombo;
-    }
-
-    public void actionPerformed(ActionEvent event) {
-        JComboBox<Sex> sexCombo = (JComboBox<Sex>)event.getSource();
-        this.sex = (Sex)sexCombo.getSelectedItem();
+        return sexComboBox;
     }
 }

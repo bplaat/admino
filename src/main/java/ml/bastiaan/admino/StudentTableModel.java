@@ -1,14 +1,17 @@
+// Made by Bastiaan van der Plaat (0983259) from TINPRO02-4 this is my first try
+
 package ml.bastiaan.admino;
 
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.JButton;
 
 public class StudentTableModel extends AbstractTableModel {
-	private static final long serialVersionUID = 1;
+    private static final long serialVersionUID = 1;
 
-	private final List<Student> studentList;
-    private final String[] columnNames = new String[] { "Id", "First name", "Last name", "Sex", "Study name", "Class name" };
-    private final Class[] columnClass = new Class[] { Object.class, String.class, String.class, Sex.class, String.class, String.class };
+    private final List<Student> studentList;
+    private final String[] columnNames = new String[] { "Id", "First name", "Last name", "Sex", "Study name", "Class name", "Grades" };
+    private final Class<?>[] columnClass = new Class<?>[] { Object.class, String.class, String.class, Sex.class, String.class, String.class, JButton.class };
 
     public StudentTableModel(List<Student> studentList) {
         this.studentList = studentList;
