@@ -4,10 +4,13 @@ package ml.bastiaan.admino;
 
 import javax.swing.SwingUtilities;
 
+// The main entry point
 public class Main {
     public static void main(String[] args) {
+        // Create an app instance and run in right swing thread
         SwingUtilities.invokeLater(App.getInstance());
     }
+}
 
 //     public static List<Student> getStudentsWhichPassedSubject(List<Student> students, Subject subject) {
 //         return students.stream().filter(student -> student.getPassedSubjects().contains(subject))
@@ -18,4 +21,3 @@ public class Main {
 //         return Stream.concat(student.getPassedSubjects().stream(), student.getFailedSubjects().stream())
 //             .collect(Collectors.toList());
 //     }
-}

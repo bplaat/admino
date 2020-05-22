@@ -6,5 +6,6 @@ package ml.bastiaan.admino;
 public class Config {
     private Config() {}
 
+    // Enables the debug logging to stdout
     public static final boolean DEBUG = true;
 }
