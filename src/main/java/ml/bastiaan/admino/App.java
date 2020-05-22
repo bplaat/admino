@@ -3,6 +3,7 @@
 package ml.bastiaan.admino;
 
 import java.awt.event.ActionEvent;
+import java.awt.Toolkit;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -10,16 +11,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
@@ -34,6 +34,7 @@ import org.json.JSONObject;
 public class App implements Runnable {
     private static App instance = null;
 
+    private JFrame frame;
     private JTabbedPane tabs;
     private boolean gradesTabChange = false;
     private List<Subject> subjects;
@@ -80,13 +81,14 @@ public class App implements Runnable {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception exception) {}
 
-        JFrame frame = new JFrame("The Administration System");
+        frame = new JFrame("The Administration System");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(1280, 720);
         frame.setLocationRelativeTo(null);
 
         // Root objects
-        JPanel root = new JPanel(new GridBagLayout());
+        JPanel root = new JPanel(new BorderLayout());
+        root.setBorder(new EmptyBorder(8, 8, 8, 8));
 
         JScrollPane rootScrollPane = new JScrollPane(root);
         rootScrollPane.setBorder(null);
@@ -100,8 +102,7 @@ public class App implements Runnable {
                 tabs.remove(2);
             }
         });
-        Insets insets = new Insets(4, 4, 4, 4);
-        root.add(tabs, new GridBagConstraints(0, 0, 2, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, insets, 0, 0));
+        root.add(tabs, BorderLayout.CENTER);
 
         // Subject Tab
         subjects = new ArrayList<Subject>();
@@ -173,10 +174,19 @@ public class App implements Runnable {
         }
         else {
             students.add(new Student("Bastiaan", "van der Plaat", Sex.MALE, "Technische Informatica", "TI1E"));
-            students.add(new Student("Jaco", "de Jong", Sex.MALE, "Technische Informatica", "TI1E"));
+            students.add(new Student("Dirk", "de Jong", Sex.MALE, "Technische Informatica", "TI1E"));
             students.add(new Student("Jan", "Jansen", Sex.OTHER, "Informatica", "INF1A"));
             students.add(new Student("Lisa", "de Lange", Sex.FEMALE, "Informatica", "INF1A"));
             students.add(new Student("Michiel", "de Korte", Sex.MALE, "Technische Informatica", "TI1B"));
+
+            for (Student student : students) {
+                for (int i = 0; i < (int)(Math.random() * 10) + 5; i++) {
+                    student.addGrade(
+                        subjects.get((int)(Math.random() * subjects.size())),
+                        (float)(Math.floor(Math.random() * 9 * 10) / 10) + 1
+                    );
+                }
+            }
         }
 
         StudentTableModel studentTableModel = new StudentTableModel(students);
@@ -215,8 +225,9 @@ public class App implements Runnable {
         // Buttons sidebar
         JPanel buttons = new JPanel();
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.PAGE_AXIS));
-        buttons.setPreferredSize(new Dimension(240, 480));
-        root.add(buttons, new GridBagConstraints(2, 0, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, insets, 0, 0));
+        buttons.setPreferredSize(new Dimension(196, 480));
+        buttons.setBorder(new EmptyBorder(0, 8, 0, 0));
+        root.add(buttons, BorderLayout.EAST);
 
         // Add the save data button to the sidebar
         JButton saveButton = new JButton("Save data");
@@ -256,8 +267,8 @@ public class App implements Runnable {
         frame.setVisible(true);
     }
 
-    void openStudentGrades(int row) {
-        Student student = students.get(row);
+    void openStudentGradesTab(int studentRow) {
+        Student student = students.get(studentRow);
 
         GradeTableModel gradeTableModel = new GradeTableModel(student.getGrades());
 
@@ -281,13 +292,35 @@ public class App implements Runnable {
 
         JButton gradeAddButton = new JButton("Add new grade");
         gradeAddButton.addActionListener((ActionEvent event) -> {
-            // TODO
+            try {
+                if (
+                    student.addGrade(
+                        (Subject)subjectInput.getSelectedItem(),
+                        Float.parseFloat(gradeInput.getText())
+                    )
+                ) {
+                    subjectInput.setSelectedIndex(0);
+                    gradeInput.setText("");
+                } else {
+                    Toolkit.getDefaultToolkit().beep();
+                    JOptionPane.showMessageDialog(frame, "There is already a grade for that subject entered", "Duplicated Grade Subject Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (NumberFormatException exception) {
+                Toolkit.getDefaultToolkit().beep();
+                JOptionPane.showMessageDialog(frame, "The grade you've entered is not a good float value", "Grade Float Parse Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+            gradeTableModel.fireTableDataChanged();
         });
         gradeButtons.add(gradeAddButton);
 
         JButton gradeRemoveButton = new JButton("Remove selected grade");
         gradeRemoveButton.addActionListener((ActionEvent event) -> {
-            // TODO
+            int row = gradeTable.getSelectedRow();
+            if (row != -1) {
+                student.removeGrade(row);
+                gradeTableModel.fireTableDataChanged();
+            }
         });
         gradeButtons.add(gradeRemoveButton);
 

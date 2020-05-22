@@ -19,7 +19,7 @@ public class GradesCellEditor extends AbstractCellEditor implements TableCellEdi
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
         JButton button = new JButton("...");
         button.addActionListener((ActionEvent event) -> {
-            App.getInstance().openStudentGrades(row);
+            App.getInstance().openStudentGradesTab(row);
         });
         return button;
     }

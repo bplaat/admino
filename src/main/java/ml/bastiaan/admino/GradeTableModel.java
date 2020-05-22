@@ -2,18 +2,18 @@
 
 package ml.bastiaan.admino;
 
-import java.util.Map;
+import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 public class GradeTableModel extends AbstractTableModel {
     private static final long serialVersionUID = 1;
 
-    private final Map<Subject, Float> gradesMap;
-    private final String[] columnNames = new String[] { "Subject code", "Grate" };
+    private final List<Grade> gradeList;
+    private final String[] columnNames = new String[] { "Subject code", "Grade" };
     private final Class<?>[] columnClass = new Class<?>[] { String.class, Float.class };
 
-    public GradeTableModel(Map<Subject, Float> gradesMap) {
-        this.gradesMap = gradesMap;
+    public GradeTableModel(List<Grade> gradeList) {
+        this.gradeList = gradeList;
     }
 
     public String getColumnName(int column) {
@@ -29,7 +29,7 @@ public class GradeTableModel extends AbstractTableModel {
     }
 
     public int getRowCount() {
-        return gradesMap.size();
+        return gradeList.size();
     }
 
     public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -37,12 +37,24 @@ public class GradeTableModel extends AbstractTableModel {
     }
 
     public Object getValueAt(int rowIndex, int columnIndex) {
+        Grade grade = gradeList.get(rowIndex);
+
+        if (columnIndex == 0) {
+            return grade.getSubject().getCode();
+        }
+
+        if (columnIndex == 1) {
+            return grade.getGrade();
+        }
+
         return null;
     }
 
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
-        if (columnIndex == 1) {
+        Grade grade = gradeList.get(rowIndex);
 
+        if (columnIndex == 1) {
+            grade.setGrade((float)value);
         }
     }
 }
