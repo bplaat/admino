@@ -624,7 +624,7 @@ public class App implements Runnable {
     }
 
     // Update the comboboxes with new data
-    void updateComboBoxes() {
+    public void updateComboBoxes() {
         // Update subject input
         if (subjectInput != null) {
             int selectedSubjectIndex = subjectInput.getSelectedIndex();
@@ -669,7 +669,7 @@ public class App implements Runnable {
     }
 
     // Create and show students grade tab
-    void openStudentGradesTab(int index) {
+    public void openStudentGradesTab(int index) {
         // Fetch the student
         Student student = students.get(index);
 
