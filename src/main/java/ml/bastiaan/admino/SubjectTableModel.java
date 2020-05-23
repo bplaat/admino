@@ -12,13 +12,17 @@ public class SubjectTableModel extends AbstractTableModel {
     // The subjects interal list reference
     private final List<Subject> subjectList;
 
+    // The subject table editable boolean holder
+    private final boolean editable;
+
     // The column names and types
     private final String[] columnNames = new String[] { "Id", "Code", "Year" };
     private final Class<?>[] columnClass = new Class<?>[] { Object.class, String.class, Integer.class };
 
-    // The subject table model constructor which accepts a subjects list
-    public SubjectTableModel(List<Subject> subjectList) {
+    // The subject table model constructor which accepts a subjects list and if it is editable
+    public SubjectTableModel(List<Subject> subjectList, boolean editable) {
         this.subjectList = subjectList;
+        this.editable = editable;
     }
 
     // The function that returns the column names
@@ -41,9 +45,13 @@ public class SubjectTableModel extends AbstractTableModel {
         return subjectList.size();
     }
 
-    // The function which tells if a cel is editable (everything is editable except the first id field)
+    // The function which tells if a cel is editable (everything is editable when editable except the first id field)
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return columnIndex != 0;
+        if (editable) {
+            return columnIndex != 0;
+        } else {
+            return false;
+        }
     }
 
     // The function which tells what value must be displayed per column

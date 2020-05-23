@@ -4,6 +4,7 @@ package ml.bastiaan.admino;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -61,20 +62,11 @@ public class Student {
             JSONObject jsonGrade = jsonGrades.getJSONObject(i);
 
             // Get the subject by subject id
-            Subject gradeSubject = null;
             int gradeSubjectId = jsonGrade.getInt("subject-id");
-            for (Subject subject : subjects) {
-                if (subject.getId() == gradeSubjectId) {
-                    gradeSubject = subject;
-                    break;
-                }
-            }
-
-            if (gradeSubject != null) {
-                student.addGrade(gradeSubject, jsonGrade.getFloat("grade"));
-            }
-
-            else {
+            Optional<Subject> gradeSubject = subjects.stream().filter(subject -> subject.getId() == gradeSubjectId).findFirst();
+            if (gradeSubject.isPresent()) {
+                student.addGrade(gradeSubject.get(), jsonGrade.getFloat("grade"));
+            } else {
                 Log.warning("Grade subject id: " + gradeSubjectId + " not found!");
             }
         }
@@ -175,5 +167,11 @@ public class Student {
     // Remove a student grade by index
     public void removeGrade(int index) {
         grades.remove(index);
+    }
+
+
+    // Give the name when converted to a string (for the JComboBox)
+    public String toString() {
+        return firstName + " " + lastName;
     }
 }

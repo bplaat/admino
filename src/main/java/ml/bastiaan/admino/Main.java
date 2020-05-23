@@ -11,13 +11,3 @@ public class Main {
         SwingUtilities.invokeLater(App.getInstance());
     }
 }
-
-//     public static List<Student> getStudentsWhichPassedSubject(List<Student> students, Subject subject) {
-//         return students.stream().filter(student -> student.getPassedSubjects().contains(subject))
-//             .collect(Collectors.toList());
-//     }
-
-//     public static List<Subject> getSubjectsByStudent(Student student) {
-//         return Stream.concat(student.getPassedSubjects().stream(), student.getFailedSubjects().stream())
-//             .collect(Collectors.toList());
-//     }

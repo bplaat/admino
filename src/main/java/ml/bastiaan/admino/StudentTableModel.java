@@ -13,28 +13,48 @@ public class StudentTableModel extends AbstractTableModel {
     // The student list model data holder
     private final List<Student> studentList;
 
-    // The column names and types
-    private final String[] columnNames = new String[] { "Id", "First name", "Last name", "Sex", "Study name", "Class name", "Grades" };
-    private final Class<?>[] columnClass = new Class<?>[] { Object.class, String.class, String.class, Sex.class, String.class, String.class, JButton.class };
+    // The editable boolean holder
+    private final boolean editable;
 
-    // The table model constructor which accepts a student list for the data
-    public StudentTableModel(List<Student> studentList) {
+    // The column names and types
+    private final String[] columnNames = new String[] { "Id", "First name", "Last name", "Sex", "Study name", "Class name" };
+    private final Class<?>[] columnClass = new Class<?>[] { Object.class, String.class, String.class, Sex.class, String.class, String.class };
+
+    // The editable table column names and types
+    private final String[] editableColumnNames = new String[] { "Id", "First name", "Last name", "Sex", "Study name", "Class name", "Grades" };
+    private final Class<?>[] editableColumnClass = new Class<?>[] { Object.class, String.class, String.class, Sex.class, String.class, String.class, JButton.class };
+
+    // The table model constructor which accepts a student list for the data and if it is editable
+    public StudentTableModel(List<Student> studentList, boolean editable) {
         this.studentList = studentList;
+        this.editable = editable;
     }
 
     // The function that returns the column names
     public String getColumnName(int column) {
-        return columnNames[column];
+        if (editable) {
+            return editableColumnNames[column];
+        } else {
+            return columnNames[column];
+        }
     }
 
     // The function that returns the column types
     public Class<?> getColumnClass(int columnIndex) {
-        return columnClass[columnIndex];
+        if (editable) {
+            return editableColumnClass[columnIndex];
+        } else {
+            return columnClass[columnIndex];
+        }
     }
 
     // The function that returns the table column count
     public int getColumnCount() {
-        return columnNames.length;
+        if (editable) {
+            return editableColumnNames.length;
+        } else {
+            return columnNames.length;
+        }
     }
 
     // The function that returns the table rows count
@@ -42,9 +62,13 @@ public class StudentTableModel extends AbstractTableModel {
         return studentList.size();
     }
 
-    // The function which tells if a cel is editable (everything is editable except the first id field)
+    // The function which tells if a cel is editable (everything is editable when editable except the first id field)
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return columnIndex != 0;
+        if (editable) {
+            return columnIndex != 0;
+        } else {
+            return false;
+        }
     }
 
     // The function which tells what value must be displayed per column

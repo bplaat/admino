@@ -14,11 +14,12 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -39,7 +40,6 @@ public class App implements Runnable {
     // Other fields
     private JFrame frame;
     private JTabbedPane tabs;
-    private boolean gradesTabChange = false;
     private List<Subject> subjects;
     private List<Student> students;
 
@@ -107,11 +107,6 @@ public class App implements Runnable {
         // Create tabs pane
         tabs = new JTabbedPane();
         tabs.setPreferredSize(new Dimension(640, 480));
-        tabs.addChangeListener((ChangeEvent event) -> {
-            if (!gradesTabChange && tabs.getTabCount() == 3) {
-                tabs.remove(2);
-            }
-        });
         root.add(tabs, BorderLayout.CENTER);
 
         // Load subjects
@@ -147,7 +142,7 @@ public class App implements Runnable {
         tabs.addTab("Subjects", subjectTab);
 
         // Create subjects table
-        SubjectTableModel subjectTableModel = new SubjectTableModel(subjects);
+        SubjectTableModel subjectTableModel = new SubjectTableModel(subjects, true);
         JTable subjectTable = new JTable(subjectTableModel);
         subjectTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         subjectTab.add(new JScrollPane(subjectTable), BorderLayout.CENTER);
@@ -211,7 +206,7 @@ public class App implements Runnable {
         tabs.addTab("Students", studentTab);
 
         // Create students table
-        StudentTableModel studentTableModel = new StudentTableModel(students);
+        StudentTableModel studentTableModel = new StudentTableModel(students, true);
         JTable studentTable = new JTable(studentTableModel);
         studentTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         studentTable.setDefaultEditor(Sex.class, new SexCellEditor());
@@ -241,12 +236,12 @@ public class App implements Runnable {
         });
         studentButtons.add(studentRemoveButton);
 
-        // Buttons sidebar
-        JPanel buttons = new JPanel();
-        buttons.setLayout(new BoxLayout(buttons, BoxLayout.PAGE_AXIS));
-        buttons.setPreferredSize(new Dimension(196, 480));
-        buttons.setBorder(new EmptyBorder(0, 8, 0, 0));
-        root.add(buttons, BorderLayout.EAST);
+        // Sidebar
+        JPanel sidebar = new JPanel();
+        sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.PAGE_AXIS));
+        sidebar.setPreferredSize(new Dimension(240, 480));
+        sidebar.setBorder(new EmptyBorder(0, 8, 0, 0));
+        root.add(sidebar, BorderLayout.EAST);
 
         // Add the save data button to the sidebar
         JButton saveButton = new JButton("Save data");
@@ -280,7 +275,209 @@ public class App implements Runnable {
                 Log.error(exception);
             }
         });
-        buttons.add(saveButton);
+        sidebar.add(saveButton);
+
+        // Create subject input field
+        sidebar.add(new JLabel("Subject:"));
+        JComboBox<Subject> subjectInput = new JComboBox<Subject>();
+        for (Subject subject : subjects) {
+            subjectInput.addItem(subject);
+        }
+        sidebar.add(subjectInput);
+        subjectInput.setMaximumSize(subjectInput.getPreferredSize());
+
+        // Create student input field
+        sidebar.add(new JLabel("Student:"));
+        JComboBox<Student> studentInput = new JComboBox<Student>();
+        for (Student student : students) {
+            studentInput.addItem(student);
+        }
+        sidebar.add(studentInput);
+        studentInput.setMaximumSize(studentInput.getPreferredSize());
+
+        // Create passed students of subject button
+        JButton passedStudentsOfSubjectButton = new JButton("Get all passed students of subject");
+        passedStudentsOfSubjectButton.addActionListener((ActionEvent event) -> {
+            Subject subject = (Subject)subjectInput.getSelectedItem();
+
+            // Filter passed students
+            List<Student> passedStudents = new ArrayList<Student>();
+            for (Student student : students) {
+                for (Grade grade : student.getGrades()) {
+                    if (
+                        grade.getSubject().getCode() == subject.getCode() &&
+                        grade.getGrade() >= 5.5
+                    ) {
+                        passedStudents.add(student);
+                        break;
+                    }
+                }
+            }
+
+            // Create dialog
+            JDialog dialog = new JDialog(frame, "Passed students for subject result");
+            dialog.setSize(800, 600);
+            dialog.setLocationRelativeTo(null);
+
+            // Create passed students table
+            StudentTableModel passedStudentTableModel = new StudentTableModel(passedStudents, false);
+            JTable passedStudentTable = new JTable(passedStudentTableModel);
+            passedStudentTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            dialog.add(new JScrollPane(passedStudentTable));
+
+            dialog.setVisible(true);
+        });
+        sidebar.add(passedStudentsOfSubjectButton);
+
+        // Create failed students of subject button
+        JButton failedStudentsOfSubjectButton = new JButton("Get all failed students of subject");
+        failedStudentsOfSubjectButton.addActionListener((ActionEvent event) -> {
+            Subject subject = (Subject)subjectInput.getSelectedItem();
+
+            // Filter failed students
+            List<Student> failedStudents = new ArrayList<Student>();
+            for (Student student : students) {
+                for (Grade grade : student.getGrades()) {
+                    if (
+                        grade.getSubject().getCode() == subject.getCode() &&
+                        grade.getGrade() < 5.5
+                    ) {
+                        failedStudents.add(student);
+                        break;
+                    }
+                }
+            }
+
+            // Create dialog
+            JDialog dialog = new JDialog(frame, "Failed students for subject result");
+            dialog.setSize(800, 600);
+            dialog.setLocationRelativeTo(null);
+
+            // Create failed students table
+            StudentTableModel failedStudentTableModel = new StudentTableModel(failedStudents, false);
+            JTable failedStudentTable = new JTable(failedStudentTableModel);
+            failedStudentTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            dialog.add(new JScrollPane(failedStudentTable));
+
+            dialog.setVisible(true);
+        });
+        sidebar.add(failedStudentsOfSubjectButton);
+
+        // Create passed subjects of student button
+        JButton passedSubjectsOfStudentButton = new JButton("Get all passed subjects of student");
+        passedSubjectsOfStudentButton.addActionListener((ActionEvent event) -> {
+            Student student = (Student)studentInput.getSelectedItem();
+
+            // Filter passed subjects
+            List<Subject> passedSubjects = new ArrayList<Subject>();
+            for (Grade grade : student.getGrades()) {
+                if (grade.getGrade() >= 5.5) {
+                    passedSubjects.add(grade.getSubject());
+                }
+            }
+
+            // Create dialog
+            JDialog dialog = new JDialog(frame, "Passed subject of student result");
+            dialog.setSize(800, 600);
+            dialog.setLocationRelativeTo(null);
+
+            // Create passed subjects table
+            SubjectTableModel passedSubjectTableModel = new SubjectTableModel(passedSubjects, false);
+            JTable passedSubjectTable = new JTable(passedSubjectTableModel);
+            passedSubjectTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            dialog.add(new JScrollPane(passedSubjectTable));
+
+            dialog.setVisible(true);
+        });
+        sidebar.add(passedSubjectsOfStudentButton);
+
+        // Create failed subjects of student button
+        JButton failedSubjectsOfStudentButton = new JButton("Get all failed subjects of student");
+        failedSubjectsOfStudentButton.addActionListener((ActionEvent event) -> {
+            Student student = (Student)studentInput.getSelectedItem();
+
+            // Filter failed subjects
+            List<Subject> failedSubjects = new ArrayList<Subject>();
+            for (Grade grade : student.getGrades()) {
+                if (grade.getGrade() < 5.5) {
+                    failedSubjects.add(grade.getSubject());
+                }
+            }
+
+            // Create dialog
+            JDialog dialog = new JDialog(frame, "Failed subject of student result");
+            dialog.setSize(800, 600);
+            dialog.setLocationRelativeTo(null);
+
+            // Create failed subjects table
+            SubjectTableModel failedSubjectTableModel = new SubjectTableModel(failedSubjects, false);
+            JTable failedSubjectTable = new JTable(failedSubjectTableModel);
+            failedSubjectTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            dialog.add(new JScrollPane(failedSubjectTable));
+
+            dialog.setVisible(true);
+        });
+        sidebar.add(failedSubjectsOfStudentButton);
+
+        // Create average grade of subject button
+        JButton averageGradeOfSubjectButton = new JButton("Get average grade of subject");
+        averageGradeOfSubjectButton.addActionListener((ActionEvent event) -> {
+            Subject subject = (Subject)subjectInput.getSelectedItem();
+
+            // Calculate average grade
+            float gradeSum = 0;
+            int gradeCount = 0;
+            for (Student student : students) {
+                for (Grade grade : student.getGrades()) {
+                    if (
+                        grade.getSubject().getCode() == subject.getCode()
+                    ) {
+                        gradeSum += grade.getGrade();
+                        gradeCount++;
+                        break;
+                    }
+                }
+            }
+            float gradeAverage = gradeSum / gradeCount;
+
+            // Show dialog
+            JOptionPane.showMessageDialog(frame, "The grade average of all grades is " + gradeAverage, "Grade Average Result", JOptionPane.INFORMATION_MESSAGE);
+        });
+        sidebar.add(averageGradeOfSubjectButton);
+
+        // Create grade sum of student button
+        JButton gradeSumOfStudentButton = new JButton("Get grade sum of student");
+        gradeSumOfStudentButton.addActionListener((ActionEvent event) -> {
+            Student student = (Student)studentInput.getSelectedItem();
+
+            // Calculate grade sum
+            double gradeSum = student.getGrades().stream().mapToDouble(grade -> grade.getGrade()).sum();
+
+            // Show dialog
+            JOptionPane.showMessageDialog(frame, "The grade sum of all grades is " + gradeSum, "Grade Sum Result", JOptionPane.INFORMATION_MESSAGE);
+        });
+        sidebar.add(gradeSumOfStudentButton);
+
+        // Create grade standard deviation of student button
+        JButton gradeStandardDeviationOfStudentButton = new JButton("Get grade standard deviation of student");
+        gradeStandardDeviationOfStudentButton.addActionListener((ActionEvent event) -> {
+            // TODO
+        });
+        sidebar.add(gradeStandardDeviationOfStudentButton);
+
+        // Create grade variation of student button
+        JButton gradeVariationOfStudentButton = new JButton("Get grade variation of student");
+        gradeVariationOfStudentButton.addActionListener((ActionEvent event) -> {
+            // TODO
+        });
+        sidebar.add(gradeVariationOfStudentButton);
+
+        // Create student sex of subject button
+        JButton studentSexOfSubjectButton = new JButton("Get student sex of subject");
+        studentSexOfSubjectButton.addActionListener((ActionEvent event) -> {
+            // TODO
+        });
+        sidebar.add(studentSexOfSubjectButton);
 
         // Make the GUI window visible
         frame.setVisible(true);
@@ -357,10 +554,13 @@ public class App implements Runnable {
         });
         gradeButtons.add(gradeRemoveButton);
 
+        // Remove the third tab when a grades tab was already opend
+        if (tabs.getTabCount() == 3) {
+            tabs.remove(2);
+        }
+
         // Add grade page to the sabs and show it
-        gradesTabChange = true;
         tabs.addTab("Grades for " + student.getFirstName() + " " + student.getLastName(), gradeTab);
         tabs.setSelectedComponent(gradeTab);
-        gradesTabChange = false;
     }
 }
