@@ -3,17 +3,21 @@
 package ml.bastiaan.admino;
 
 import java.awt.event.ActionEvent;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
+import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.border.EmptyBorder;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -192,7 +196,7 @@ public class App implements Runnable {
 
             // Give all the new students some random grates
             for (Student student : students) {
-                for (int i = 0; i < (int)(Math.random() * 10) + 5; i++) {
+                for (int i = 0; i < (int)(Math.random() * 25) + 5; i++) {
                     student.addGrade(
                         subjects.get((int)(Math.random() * subjects.size())),
                         (float)(Math.floor(Math.random() * 9 * 10) / 10) + 1
@@ -243,8 +247,19 @@ public class App implements Runnable {
         sidebar.setBorder(new EmptyBorder(0, 8, 0, 0));
         root.add(sidebar, BorderLayout.EAST);
 
+        sidebar.add(Box.createVerticalGlue());
+
+        // Create logo
+        JLabel logolabel = new JLabel("Admino");
+        logolabel.setFont(logolabel.getFont().deriveFont(Font.BOLD, 24));
+        logolabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        sidebar.add(logolabel);
+
+        sidebar.add(Box.createRigidArea(new Dimension(0, 16)));
+
         // Add the save data button to the sidebar
         JButton saveButton = new JButton("Save data");
+        saveButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         saveButton.addActionListener((ActionEvent event) -> {
             try {
                 // Turn all objects to json data
@@ -277,26 +292,48 @@ public class App implements Runnable {
         });
         sidebar.add(saveButton);
 
+        sidebar.add(Box.createRigidArea(new Dimension(0, 16)));
+
         // Create subject input field
-        sidebar.add(new JLabel("Subject:"));
+        JLabel subjectLabel = new JLabel("Subject:");
+        Font normalFont = subjectLabel.getFont().deriveFont(14f);
+        subjectLabel.setFont(normalFont);
+        subjectLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        sidebar.add(subjectLabel);
+
+        sidebar.add(Box.createRigidArea(new Dimension(0, 8)));
+
         JComboBox<Subject> subjectInput = new JComboBox<Subject>();
+        subjectInput.setAlignmentX(Component.CENTER_ALIGNMENT);
         for (Subject subject : subjects) {
             subjectInput.addItem(subject);
         }
         sidebar.add(subjectInput);
         subjectInput.setMaximumSize(subjectInput.getPreferredSize());
 
+        sidebar.add(Box.createRigidArea(new Dimension(0, 16)));
+
         // Create student input field
-        sidebar.add(new JLabel("Student:"));
+        JLabel studentLabel = new JLabel("Student:");
+        studentLabel.setFont(normalFont);
+        studentLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        sidebar.add(studentLabel);
+
+        sidebar.add(Box.createRigidArea(new Dimension(0, 8)));
+
         JComboBox<Student> studentInput = new JComboBox<Student>();
+        studentInput.setAlignmentX(Component.CENTER_ALIGNMENT);
         for (Student student : students) {
             studentInput.addItem(student);
         }
         sidebar.add(studentInput);
         studentInput.setMaximumSize(studentInput.getPreferredSize());
 
+        sidebar.add(Box.createRigidArea(new Dimension(0, 16)));
+
         // Create passed students of subject button
         JButton passedStudentsOfSubjectButton = new JButton("Get all passed students of subject");
+        passedStudentsOfSubjectButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         passedStudentsOfSubjectButton.addActionListener((ActionEvent event) -> {
             Subject subject = (Subject)subjectInput.getSelectedItem();
 
@@ -331,6 +368,7 @@ public class App implements Runnable {
 
         // Create failed students of subject button
         JButton failedStudentsOfSubjectButton = new JButton("Get all failed students of subject");
+        failedStudentsOfSubjectButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         failedStudentsOfSubjectButton.addActionListener((ActionEvent event) -> {
             Subject subject = (Subject)subjectInput.getSelectedItem();
 
@@ -365,16 +403,15 @@ public class App implements Runnable {
 
         // Create passed subjects of student button
         JButton passedSubjectsOfStudentButton = new JButton("Get all passed subjects of student");
+        passedSubjectsOfStudentButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         passedSubjectsOfStudentButton.addActionListener((ActionEvent event) -> {
             Student student = (Student)studentInput.getSelectedItem();
 
             // Filter passed subjects
-            List<Subject> passedSubjects = new ArrayList<Subject>();
-            for (Grade grade : student.getGrades()) {
-                if (grade.getGrade() >= 5.5) {
-                    passedSubjects.add(grade.getSubject());
-                }
-            }
+            List<Subject> passedSubjects = student.getGrades().stream()
+                .filter(grade -> grade.getGrade() >= 5.5)
+                .map(grade -> grade.getSubject())
+                .collect(Collectors.toList());
 
             // Create dialog
             JDialog dialog = new JDialog(frame, "Passed subject of student result");
@@ -393,16 +430,15 @@ public class App implements Runnable {
 
         // Create failed subjects of student button
         JButton failedSubjectsOfStudentButton = new JButton("Get all failed subjects of student");
+        failedSubjectsOfStudentButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         failedSubjectsOfStudentButton.addActionListener((ActionEvent event) -> {
             Student student = (Student)studentInput.getSelectedItem();
 
             // Filter failed subjects
-            List<Subject> failedSubjects = new ArrayList<Subject>();
-            for (Grade grade : student.getGrades()) {
-                if (grade.getGrade() < 5.5) {
-                    failedSubjects.add(grade.getSubject());
-                }
-            }
+            List<Subject> failedSubjects = student.getGrades().stream()
+                .filter(grade -> grade.getGrade() < 5.5)
+                .map(grade -> grade.getSubject())
+                .collect(Collectors.toList());
 
             // Create dialog
             JDialog dialog = new JDialog(frame, "Failed subject of student result");
@@ -421,6 +457,7 @@ public class App implements Runnable {
 
         // Create average grade of subject button
         JButton averageGradeOfSubjectButton = new JButton("Get average grade of subject");
+        averageGradeOfSubjectButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         averageGradeOfSubjectButton.addActionListener((ActionEvent event) -> {
             Subject subject = (Subject)subjectInput.getSelectedItem();
 
@@ -438,7 +475,7 @@ public class App implements Runnable {
                     }
                 }
             }
-            float gradeAverage = gradeSum / gradeCount;
+            float gradeAverage = Math.round(gradeSum / gradeCount * 10) / 10;
 
             // Show dialog
             JOptionPane.showMessageDialog(frame, "The grade average of all grades is " + gradeAverage, "Grade Average Result", JOptionPane.INFORMATION_MESSAGE);
@@ -447,11 +484,15 @@ public class App implements Runnable {
 
         // Create grade sum of student button
         JButton gradeSumOfStudentButton = new JButton("Get grade sum of student");
+        gradeSumOfStudentButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         gradeSumOfStudentButton.addActionListener((ActionEvent event) -> {
             Student student = (Student)studentInput.getSelectedItem();
 
             // Calculate grade sum
-            double gradeSum = student.getGrades().stream().mapToDouble(grade -> grade.getGrade()).sum();
+            double sum = student.getGrades().stream()
+                .mapToDouble(grade -> grade.getGrade())
+                .sum();
+            float gradeSum = Math.round((float)sum * 10) / 10;
 
             // Show dialog
             JOptionPane.showMessageDialog(frame, "The grade sum of all grades is " + gradeSum, "Grade Sum Result", JOptionPane.INFORMATION_MESSAGE);
@@ -460,6 +501,7 @@ public class App implements Runnable {
 
         // Create grade standard deviation of student button
         JButton gradeStandardDeviationOfStudentButton = new JButton("Get grade standard deviation of student");
+        gradeStandardDeviationOfStudentButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         gradeStandardDeviationOfStudentButton.addActionListener((ActionEvent event) -> {
             // TODO
         });
@@ -467,6 +509,7 @@ public class App implements Runnable {
 
         // Create grade variation of student button
         JButton gradeVariationOfStudentButton = new JButton("Get grade variation of student");
+        gradeVariationOfStudentButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         gradeVariationOfStudentButton.addActionListener((ActionEvent event) -> {
             // TODO
         });
@@ -474,10 +517,21 @@ public class App implements Runnable {
 
         // Create student sex of subject button
         JButton studentSexOfSubjectButton = new JButton("Get student sex of subject");
+        studentSexOfSubjectButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         studentSexOfSubjectButton.addActionListener((ActionEvent event) -> {
             // TODO
         });
         sidebar.add(studentSexOfSubjectButton);
+
+        sidebar.add(Box.createRigidArea(new Dimension(0, 16)));
+
+        // Create footer
+        JLabel footerLabel = new JLabel("Made by Bastiaan van der Plaat");
+        footerLabel.setFont(normalFont);
+        footerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        sidebar.add(footerLabel);
+
+        sidebar.add(Box.createVerticalGlue());
 
         // Make the GUI window visible
         frame.setVisible(true);
