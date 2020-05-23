@@ -15,7 +15,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.OptionalDouble;
 import javax.swing.border.EmptyBorder;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -506,7 +509,22 @@ public class App implements Runnable {
         JButton gradeStandardDeviationOfStudentButton = new JButton("Get grade standard deviation of student");
         gradeStandardDeviationOfStudentButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         gradeStandardDeviationOfStudentButton.addActionListener((ActionEvent event) -> {
-            // TODO
+            Student student = (Student)studentInput.getSelectedItem();
+
+            // Calculate the standard deviation
+            double sum = student.getGrades().stream()
+                .mapToDouble(grade -> grade.getGrade())
+                .sum();
+
+            int length = student.getGrades().size();
+            double sd = student.getGrades().stream()
+                .mapToDouble(grade -> Math.pow(grade.getGrade() - (sum / length), 2))
+                .sum();
+
+            float gradeSD = Math.round(Math.sqrt(sd / length) * 10) / 10;
+
+            // Show dialog
+            JOptionPane.showMessageDialog(frame, "The grade standard deviation is " + gradeSD, "Grade Standard Deviation Result", JOptionPane.INFORMATION_MESSAGE);
         });
         sidebar.add(gradeStandardDeviationOfStudentButton);
 
@@ -514,7 +532,32 @@ public class App implements Runnable {
         JButton gradeVariationOfStudentButton = new JButton("Get grade variation of student");
         gradeVariationOfStudentButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         gradeVariationOfStudentButton.addActionListener((ActionEvent event) -> {
-            // TODO
+            Student student = (Student)studentInput.getSelectedItem();
+
+            // Get min grade
+            OptionalDouble min = student.getGrades().stream()
+                .mapToDouble(grade -> grade.getGrade())
+                .min();
+            float gradeMin = min.isPresent() ? Math.round(min.getAsDouble() * 10) / 10 : 0;
+
+            // Get average grade
+            OptionalDouble average = student.getGrades().stream()
+                .mapToDouble(grade -> grade.getGrade())
+                .average();
+            float gradeAverage = average.isPresent() ? Math.round(average.getAsDouble() * 10) / 10 : 0;
+
+            // Get max grade
+            OptionalDouble max = student.getGrades().stream()
+                .mapToDouble(grade -> grade.getGrade())
+                .max();
+            float gradeMax = max.isPresent() ? Math.round(max.getAsDouble() * 10) / 10 : 0;
+
+            // Show dialog
+            if (min.isPresent()) {
+                JOptionPane.showMessageDialog(frame, "The lowest grade: " + gradeMin + "\nThe average grade: " + gradeAverage + "\nThe highest grade: " + gradeMax, "Grade Variation Result", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(frame, "There are no grades yet", "Grade Variation Result", JOptionPane.INFORMATION_MESSAGE);
+            }
         });
         sidebar.add(gradeVariationOfStudentButton);
 
@@ -522,7 +565,47 @@ public class App implements Runnable {
         JButton studentSexOfSubjectButton = new JButton("Get student sex of subject");
         studentSexOfSubjectButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         studentSexOfSubjectButton.addActionListener((ActionEvent event) -> {
-            // TODO
+            Subject subject = (Subject)subjectInput.getSelectedItem();
+
+            // Calculate values
+            Map<Sex, Integer> passedBySex = new HashMap<Sex, Integer>();
+            Map<Sex, Integer> failedBySex = new HashMap<Sex, Integer>();
+            for (Sex sex : Sex.values()) {
+                passedBySex.put(sex, 0);
+                failedBySex.put(sex, 0);
+            }
+
+            for (Student student : students) {
+                for (Grade grade : student.getGrades()) {
+                    if (
+                        grade.getSubject().getCode() == subject.getCode()
+                    ) {
+                        if (grade.getGrade() >= 5.5) {
+                            passedBySex.put(student.getSex(), passedBySex.get(student.getSex()) + 1);
+                        } else {
+                            failedBySex.put(student.getSex(), passedBySex.get(student.getSex()) + 1);
+                        }
+                        break;
+                    }
+                }
+            }
+
+            // Create dialog
+            String resultString = "";
+            for (Sex sex : Sex.values()) {
+                float passed = passedBySex.get(sex);
+                float failed = failedBySex.get(sex);
+                float total = passed + failed;
+                if (total != 0) {
+                    resultString += sex + ": " + (Math.round(passed / total * 100 * 10) / 10) + "% passed, " +
+                        (Math.round(failed / total * 100 * 10) / 10) + "% failed\n";
+                }
+            }
+            if (!resultString.equals("")) {
+                JOptionPane.showMessageDialog(frame, resultString, "Student Sex of Subject Result", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(frame, "There are no grades given for the subject yet", "Student Sex of Subject Result", JOptionPane.INFORMATION_MESSAGE);
+            }
         });
         sidebar.add(studentSexOfSubjectButton);
 
