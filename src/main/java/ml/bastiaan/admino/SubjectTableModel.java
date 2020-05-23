@@ -84,5 +84,8 @@ public class SubjectTableModel extends AbstractTableModel {
         if (columnIndex == 2) {
             subject.setYear((int)value);
         }
+
+        // Update the comboboxes
+        App.getInstance().updateComboBoxes();
     }
 }

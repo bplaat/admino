@@ -125,5 +125,8 @@ public class StudentTableModel extends AbstractTableModel {
         if (columnIndex == 5) {
             student.setClassName((String)value);
         }
+
+        // Update the comboboxes
+        App.getInstance().updateComboBoxes();
     }
 }

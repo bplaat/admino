@@ -46,6 +46,9 @@ public class App implements Runnable {
     private JTabbedPane tabs;
     private List<Subject> subjects;
     private List<Student> students;
+    private JComboBox<Subject> subjectInput = null;
+    private JComboBox<Student> studentInput = null;
+    private JComboBox<Subject> gradeSubjectInput = null;
 
     // The constructor is private must use getInstance
     private App() {}
@@ -159,6 +162,7 @@ public class App implements Runnable {
         subjectAddButton.addActionListener((ActionEvent event) -> {
             subjects.add(new Subject("?", 0));
             subjectTableModel.fireTableDataChanged();
+            updateComboBoxes();
         });
         subjectButtons.add(subjectAddButton);
 
@@ -169,6 +173,7 @@ public class App implements Runnable {
             if (row != -1) {
                 subjects.remove(row);
                 subjectTableModel.fireTableDataChanged();
+                updateComboBoxes();
             }
         });
         subjectButtons.add(subjectRemoveButton);
@@ -226,6 +231,7 @@ public class App implements Runnable {
         studentAddButton.addActionListener((ActionEvent event) -> {
             students.add(new Student("?", "?", Sex.UNKOWN, "?", "?"));
             studentTableModel.fireTableDataChanged();
+            updateComboBoxes();
         });
         studentButtons.add(studentAddButton);
 
@@ -236,6 +242,7 @@ public class App implements Runnable {
             if (row != -1) {
                 students.remove(row);
                 studentTableModel.fireTableDataChanged();
+                updateComboBoxes();
             }
         });
         studentButtons.add(studentRemoveButton);
@@ -303,11 +310,9 @@ public class App implements Runnable {
 
         sidebar.add(Box.createRigidArea(new Dimension(0, 8)));
 
-        JComboBox<Subject> subjectInput = new JComboBox<Subject>();
+        subjectInput = new JComboBox<Subject>();
         subjectInput.setAlignmentX(Component.CENTER_ALIGNMENT);
-        for (Subject subject : subjects) {
-            subjectInput.addItem(subject);
-        }
+        updateComboBoxes();
         sidebar.add(subjectInput);
         subjectInput.setMaximumSize(subjectInput.getPreferredSize());
 
@@ -321,11 +326,9 @@ public class App implements Runnable {
 
         sidebar.add(Box.createRigidArea(new Dimension(0, 8)));
 
-        JComboBox<Student> studentInput = new JComboBox<Student>();
+        studentInput = new JComboBox<Student>();
         studentInput.setAlignmentX(Component.CENTER_ALIGNMENT);
-        for (Student student : students) {
-            studentInput.addItem(student);
-        }
+        updateComboBoxes();
         sidebar.add(studentInput);
         studentInput.setMaximumSize(studentInput.getPreferredSize());
 
@@ -537,6 +540,51 @@ public class App implements Runnable {
         frame.setVisible(true);
     }
 
+    // Update the comboboxes with new data
+    void updateComboBoxes() {
+        // Update subject input
+        if (subjectInput != null) {
+            int selectedSubjectIndex = subjectInput.getSelectedIndex();
+
+            subjectInput.removeAllItems();
+            for (Subject subject : subjects) {
+                subjectInput.addItem(subject);
+            }
+
+            if (selectedSubjectIndex != -1) {
+                subjectInput.setSelectedIndex(selectedSubjectIndex);
+            }
+        }
+
+        // Update student input
+        if (studentInput != null) {
+            int selectedStudentIndex = studentInput.getSelectedIndex();
+
+            studentInput.removeAllItems();
+            for (Student student : students) {
+                studentInput.addItem(student);
+            }
+
+            if (selectedStudentIndex != -1) {
+                studentInput.setSelectedIndex(selectedStudentIndex);
+            }
+        }
+
+        // Update grade subject input
+        if (gradeSubjectInput != null) {
+            int selectedGradeSubjectIndex = gradeSubjectInput.getSelectedIndex();
+
+            gradeSubjectInput.removeAllItems();
+            for (Subject subject : subjects) {
+                gradeSubjectInput.addItem(subject);
+            }
+
+            if (selectedGradeSubjectIndex != -1) {
+                gradeSubjectInput.setSelectedIndex(selectedGradeSubjectIndex);
+            }
+        }
+    }
+
     // Create and show students grade tab
     void openStudentGradesTab(int index) {
         // Fetch the student
@@ -555,11 +603,9 @@ public class App implements Runnable {
         gradeTab.add(gradeButtons, BorderLayout.PAGE_END);
 
         // Create subject input field
-        JComboBox<Subject> subjectInput = new JComboBox<Subject>();
-        for (Subject subject : subjects) {
-            subjectInput.addItem(subject);
-        }
-        gradeButtons.add(subjectInput);
+        gradeSubjectInput = new JComboBox<Subject>();
+        updateComboBoxes();
+        gradeButtons.add(gradeSubjectInput);
 
         // Create grade input field
         JTextField gradeInput = new JTextField(10);
@@ -572,11 +618,11 @@ public class App implements Runnable {
                 // Add new grade and check if not a duplicate
                 if (
                     student.addGrade(
-                        (Subject)subjectInput.getSelectedItem(),
+                        (Subject)gradeSubjectInput.getSelectedItem(),
                         Float.parseFloat(gradeInput.getText())
                     )
                 ) {
-                    subjectInput.setSelectedIndex(0);
+                    gradeSubjectInput.setSelectedIndex(0);
                     gradeInput.setText("");
                 }
 
